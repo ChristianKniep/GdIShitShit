@@ -377,10 +377,86 @@ k\"onnen die Gewichte der Kanten auch negativ sein, allerdings d\"urfen keine Kr
 Falls es negative Kreise gibt, findet der Algorithmus nicht zu jedem Knoten den k\"urzesten Weg.
 Es ist jedoch m\"oglich, mit dem Algorithmus das Vorhandensein von Kreisen negativen Gewichtes zu erkennen.
 
+\newpage
 \section{Exercise 4}
 \subsection{OSPF}
+\subsubsection{Aufteilen des Netzes in drei Regionen}
+\includegraphics[scale=0.5]{a.png}
+\subsubsection{Adresszuweisung}
+\begin{tabular}{|l|l|l|} 
+\hline
+Router& Group & Adress\\
+\hline \hline
+1 & NW & \Reins \\ 
+\hline
+2 & NE & \Rzwei \\ 
+\hline
+3 & NE & \Rdrei \\ 
+\hline
+4 & S & \Rvier \\ 
+\hline
+5 & S & \Rfunf \\ 
+\hline
+6 & NW & \Rsechs \\ 
+\hline
+\textbf{7} & \textbf{BB} & \textbf{\Rsieben}\\ 
+\hline
+8 & BB & \Racht \\ 
+\hline
+\textbf{9} & \textbf{BB} & \textbf{\Rneun}\\ 
+\hline
+10 & S & \Rzehn \\ 
+\hline
+\textbf{11} & \textbf{BB} & \textbf{\Relf}\\ 
+\hline
+\end{tabular}
+
+\subsubsection{Routing Tabellen der ABRs}
+
+\paragraph{R7 (134.2.4.1)}
+\begin{tabular}{|l|l|l|} 
+\hline
+IP& via & Distance\\
+\hline \hline
+134.2.3.1 (R2) & self & 1\\ 
+134.2.3.2 (R3) & 134.2.3.1 (R2) & 2\\
+134.2.4/24 (Area NW) & 134.2.4.4 (R11) & 2\\
+134.2.1/24 (Area S) & 134.2.4.2 (R8) & 3\\
+134.2.4.4 (R11) & self & 1\\
+134.2.4.2 (R8) & self & 1\\
+134.2.4.3 (R9) & 134.2.4.2 (R8) & 2\\
+\hline
+\end{tabular}
+
+\subsubsection{Vorteile OSPF}
+\begin{itemize}
+\item Ein Router in einer Area muss nur die Wege zu Routern in derselben Area kennen. Der genaue Aufbau 
+    anderer Areas, auch der Backbone-Area, ist ihm nicht bekannt. Routings in diese Bereiche gehen "uber
+    den ABR. Dem ABR gen"ugt es, die \textit{Richtung} 
+    aller Areas zu kennen. Dadurch wird der Routing-Traffic minimiert.
+\item Im Gegensatz zum Routing-Information-Protocol garantiert OSPF ein \textit{schleifenfreies} Routing.
+\item Die Unterteilung in Areas macht die Wartung des gesamten Netzes sehr einfach. Da die genaue Topologie
+einer Area dem restlichen Netzwerk unbekannt ist, k"onnen die Einzelnetzwerke in ihrem Aufbau ver"andert werden,
+ohne dass das restliche Netzwerk dar"uber informiert werden muss. Dadurch ist OSPF vor allem f"ur sehr grosse Netze
+geeinget, die erweiterbar bleiben sollen.
+\end{itemize}
+
+\subsubsection{Verbindung Backbone Area,warum?}
+Routing in \textit{fremde} Areas gehen bei OSPF immer "uber die ABRs, die sowohl zum eigenen Bereich als auch
+zum Backbone verbunden sind. Alle Routinginformationen, die zwischen Areas ausgetauscht werden, gehen "uber den Backbone. 
+Sollte in OSPF also eine Area (entgegen der Klassifikation) "uber keine Verbindung zum Backbone verf"ugen, w"urde nur Routing 
+innerhalb der eigenen Area m"oglich.
+
 
 \subsection{Effect of congestion}
+
+\subsubsection*{Maximum relative send rate}
+Jeder Link hat die Bandbreite B, und jeder Link h"alt 2 Verbindungen. Trivialerweise ist die maximale relative send rate 0.5 .
+\subsubsection{Loss ratio}
+Es gilt \[R = x*B\] \[\Rightarrow R_{loss} = (x - x_0) * B\]
+Somit \[p = \frac{R_{loss}}{R} = \frac{(x-x_0) * B}{x*B} = \frac{x-x_0}{x}\]
+
+\subsubsection{zusammenhang y/R und x}
 
 \section{Exercise 5}
 \subsection{BGP-advertisements}
