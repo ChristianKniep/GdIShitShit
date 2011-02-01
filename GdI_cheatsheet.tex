@@ -86,6 +86,17 @@
 \newcommand{\ETH}{10.0.0.0/8}
 \newcommand{\SETH}{10.0.8.0/21}
 
+\newcommand{\Reins}{134.2.2.1}
+\newcommand{\Rzwei}{134.2.3.1}
+\newcommand{\Rdrei}{134.2.3.2}
+\newcommand{\Rvier}{134.2.1.1}
+\newcommand{\Rfunf}{134.2.1.2}
+\newcommand{\Rsechs}{134.2.2.2}
+\newcommand{\Rsieben}{134.2.4.1}
+\newcommand{\Racht}{134.2.4.2}
+\newcommand{\Rneun}{134.2.4.3}
+\newcommand{\Rzehn}{134.2.1.3}
+\newcommand{\Relf}{134.2.4.4}
 % -----------------------------------------------------------------------
 
 \begin{document}
@@ -368,6 +379,7 @@ Es ist jedoch m\"oglich, mit dem Algorithmus das Vorhandensein von Kreisen negat
 
 \section{Exercise 4}
 \subsection{OSPF}
+
 \subsection{Effect of congestion}
 
 \section{Exercise 5}
@@ -489,13 +501,167 @@ $Timeout / RTT $
 \paragraph{GBN} Durch die extrem vergr\"osserten Timeouts kann nicht mehr festgestellt werden, welches Paket gerade angekommen ist, sollten die Nummer weiderverwendet werden.\\
 Daher gilt nun auch hier als Sequenznummer-Menge die Fenstergr\"osse.
 
-
+\newpage
 \section{Exercise 7}
 \subsection{TCP time to receive data}
+\textbf{Ablauf:}\\
+SYN $ \xrightarrow{SYN-ACK}$ ACK + S $\rightarrow$ 2 S $\rightarrow$ 4 S $\rightarrow$ 8 S $\rightarrow$ done\\
+Jeder $\rightarrow$ entspricht einer RTT. Also gibt es 5 RTTs. Transportdauer betr"agt $\frac{15S}{R}$.
+\[ 5\ RTT + \frac{15S}{R} \]
+\begin{align*}
+	1.\quad & \frac{S}{R} > RTT:& 
+		&\frac{20S}{R} > 5\ RTT + \frac{15S}{R} > 20\ RTT\\
+	2.\quad & RTT > \frac{3S}{R}:&
+		&10\ RTT > 5\ RTT + \frac{15S}{R} > \frac{30S}{R}\\
+	3.\quad & \frac{3S}{R} > RTT > \frac{2S}{R}:& 
+		& \frac{30S}{R} > 5\ RTT + \frac{15S}{R} > \frac{25S}{R}
+\end{align*}
 \subsection{TCP loss rate}
+\subsubsection{Beweis LossRate irgendwas}
+\subsubsection{Noch nen Beweis von 'rate' aus n"achster Aufg...}
+\subsubsection{VerlustWahr. 1500byte,100ms RTT, 10Gbit/s Link?}
+\paragraph*{gegeben:} $MMS=1500\ Byte,\ RTT=100ms,\ rate=10 \frac{GBit}{s}$
+\begin{align*}
+	rate &= \frac{1.22 \cdot MMS}{RTT \cdot \sqrt{L}}\\
+	rate \cdot RTT &= \frac{1.22 \cdot MMS}{\sqrt{L}}\\
+	\frac{rate \cdot RTT}{1.22 \cdot MMS} &= \frac{1}{\sqrt{L}}\\
+	L &= \left(\frac{1.22 \cdot MMS}{rate \cdot RTT}\right)^2 \\
+	L &= \left(\frac{1.22 \cdot 1500\ Byte}{1.25 \frac{GByte}{s} \cdot 0.1s}\right)^2 \\
+	L &= 1.8590129435835934e-10
+\end{align*}
+
+Wenn die Wahrscheinlichkeit h"oher ist, dann wir der Datendurchsatz sinken, da die Windowsize
+"ofter kleiner wird und mehrmals die gleichen Daten gesendet werden m"ussen.
 
 \section{Exercise 8}
 \subsection{DNS-Verkehrsmodelle}
+\subsubsection{Anzahl $N_k$ Domains auf k, k=0 ist root}
+Es handelt sich um einen vollst"andigen Baum mit 10 Kindern auf jeder Ebene.
+Jeder Knoten hat also 10 Nachfolger.\\
+Auf Ebene 0 gibt es einen Knoten, auf der N"achsten Ebene 10, auf der darauffolgenden $10 \cdot 10$, also 100, 
+darauffolgend $10 \cdot 100$ (jeder der hundert hat 10 Kinder) usw.
+Auf der Ebene k gibt es also $10^k$ Dom"anen.
+
+\subsection{Ebene4-DNS lokaler DNS;iterative Anfragen,mathematischen Ausdruck?}
+Der lokale Nameserver kennt die obersten m Nameserver bereits, d.h. seine erste Anfrage beginnt gerade bei dem m-ten Nameserver. 
+Somit muss er $k-m+1$ Anfragen leisten, um an die IP Adresse zu kommen. 
+Somit ist die Zeit f"ur die Anfragedauer gerade $= (k-m+2) \cdot t$
+(W"are $m = 0$, m"usste er jedoch $2 \cdot k$ Anfragen starten, da er sich erst den Baum hocharbeiten m"usste, 
+was man nicht machen muss, wenn er zumindestens die Wurzel kennen w"urde, also $m > 0$ ist)
+
+
+\subsubsection{Antwortzeiten 100ms und m=1,2,3,4,5}
+\begin{align*}
+    t &= 100ms\\
+    m &= 1:  Zeit = k*t = 5*100ms = 500 ms\\
+    m &= 2:  Zeit = k*t = 4*100ms = 400 ms\\
+    m &= 3:  Zeit = k*t = 3*100ms = 300 ms\\
+    m &= 4:  Zeit = k*t = 4*100ms = 200 ms\\
+    m &= 5:  Zeit = k*t = 5*100ms = 100 ms
+\end{align*}
+
+
+\subsubsection{Wenn DNS rekursiv..}
+
+\paragraph{Mathematischer Ausdruck?}\ \\
+Bei der Rekursiven Variante muss man erst k Ebenen nach oben gelangen, dann wieder k Ebenen nach unten, 
+nun schickt man die Antwort zur"uck, muss also wieder k Ebenen nach oben und wieder k Ebenenen nach unten.
+Somit gilt f"ur die Zeit: Zeit = $4 \cdot k \cdot t$
+
+\paragraph{Zeiten f\"ur 100ms und k=0,1,2,3,4} \ \\
+\begin{align*}
+    k = 0: 4 \cdot 0 \cdot t &= 0\\
+    k = 1: 4 \cdot 1 \cdot 100ms  &= 400 ms\\
+    k = 2: 4 \cdot 2 \cdot 100ms  &= 800 ms\\
+    k = 3: 4 \cdot 3 \cdot 100ms  &= 1200 ms\\
+    k = 4: 4 \cdot 4 \cdot 100ms  &= 1600 ms\\
+\end{align*}
+
+
+\paragraph{Wie lange, wenn der lokale DNS die oberen 1,2,3,4,5 Ebenen schon kennt?} \ \\ 
+Kennt man die m obersten Nameserver, muss man nicht mehr zweimal nach unten und zweimal nach oben steigen, 
+sondern jeweils nur einmal, und zwar $k-m+2$ mal oft. 
+Also gilt: Zeit = $(k - m + 2) \cdot 2 \cdot t$. Somit ergibt sich 
+(f"ur $k = 4$ angenommen, ist aus Aufgabenstellung nicht eindeutig ersichtlich)
+\begin{align*}
+    m = 1: \text{ Zeit } = (k - m + 2) \cdot 2 = 10 \cdot 100\ ms = 1000\ ms\\    
+    m = 2: \text{ Zeit } = (k - m + 2) \cdot 2 = 20 \cdot 100\ ms = 2000\ ms\\
+    m = 3: \text{ Zeit } = (k - m + 2) \cdot 2 = 30 \cdot 100\ ms = 3000\ ms\\
+    m = 4: \text{ Zeit } = (k - m + 2) \cdot 2 = 40 \cdot 100\ ms = 4000\ ms\\
+    m = 5: \text{ Zeit } = (k - m + 2) \cdot 2 = 50 \cdot 100\ ms = 5000\ ms
+\end{align*}
+
+\newpage
+\subsubsection{DNS-Last bei verschiedenen Modellen}
+\begin{itemize}
+    \item[A] Anfragen gleichverteilt
+    \item[B] 50\% werden lokal, der Rest gleichverteilt.
+\end{itemize}
+Von den lokalen Nameservern werden insgesamt $10^{n+1}$ Anfragen generiert, 
+f"ur $n = 4$ haben wir also $10^5$ Anfragen pro Sekunde.
+\paragraph{Verkehrsmodell A:}
+Sind die Anfragen gleichverteilt, bekommt auf Ebene $k$ ein Nameserver $10^{k+1}$ Anfragen, also gilt:
+\begin{align*}
+    k = 4:\qquad & 10^5 \text{ Anfragen}\\
+    k = 3:\qquad & 10^4 \text{ Anfragen}\\
+    k = 2:\qquad & 10^3 \text{ Anfragen}\\
+    k = 1:\qquad & 10^2 \text{ Anfragen}\\
+    k = 0:\qquad & 10^1 \text{ Anfragen}
+\end{align*}
+
+
+\paragraph{Verkehrsmodell B:}  50\% aller Anfragen bleiben auf einer Ebene Lokal
+\begin{align*}
+    k = 4:\qquad &   10^5 \text{ Anfragen}\\
+    k = 3:\qquad & 50000 \text{ Anfragen}\\
+    k = 2:\qquad & 25000 \text{ Anfragen}\\
+    k = 1:\qquad & 12500 \text{ Anfragen}\\
+    k = 0:\qquad &  6500 \text{ Anfragen}  
+\end{align*}
+4
+\subsection*{6.}
+
+\paragraph{Verkehrsmodell A:}
+\begin{align*}
+    k = 4:\qquad & 10^5 \text{ Anfragen}\\
+    k = 3:\qquad & 10^4 \text{ Anfragen}\\
+    k = 2:\qquad & 10^3 \text{ Anfragen}\\
+    k = 1:\qquad & 10^2 \text{ Anfragen}\\
+    k = 0:\qquad & 10^1 \text{ Anfragen}
+\end{align*}
+
+\paragraph{Verkehrsmodell B:} 
+Nur beim lokalem Nameserver schlagen alle Anfragen auf.
+Dieser kann diese dann aber direkt sinnvoll verteilen.
+\begin{align*}
+    k = 4:\qquad &   10^5 \text{ Anfragen}\\
+    k = 3:\qquad & 25000 \text{ Anfragen}\\
+    k = 2:\qquad & 12500 \text{ Anfragen}\\
+    k = 1:\qquad & 6500 \text{ Anfragen}\\
+    k = 0:\qquad &   6500 \text{ Anfragen} \\   
+\end{align*}
+
+\subsection*{7.}
+
+\paragraph{Verkehrsmodell B:} 
+\begin{align*}
+    k = 4:\qquad & \frac{10^5}{10^4} = 10 \text{ Anfragen}\\
+    k = 3:\qquad & \frac{10^4}{10^3} = 10\text{ Anfragen}\\
+    k = 2:\qquad & \frac{10^3}{10^2} = 10 \text{ Anfragen}\\
+    k = 1:\qquad & \frac{10^2}{10} = 10 \text{ Anfragen}\\
+    k = 0:\qquad & 10 \text{ Anfragen}
+\end{align*}
+
+\paragraph{Verkehrsmodell B:} 
+\begin{align*}
+    k = 4:\qquad & \frac{10^5}{10^4} \text{ Anfragen}\\
+    k = 3:\qquad & \frac{50000}{10^3} \text{ Anfragen}\\
+    k = 2:\qquad & \frac{25000}{10^2} \text{ Anfragen}\\
+    k = 1:\qquad & \frac{12500}{10} \text{ Anfragen}\\
+    k = 0:\qquad &  6500 \text{ Anfragen}  
+\end{align*}
+
+
 \subsection{NSLookup}
 
 \end{multicols}
