@@ -10,7 +10,12 @@
 \usepackage{listings}
 \usepackage{verbatim}
 \usepackage{multirow}
-
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata}
+\usepackage{alltt}
+\usepackage{amsmath}   % allgemeine Mathe-Erweiterungen
+\usepackage{amssymb}   % Symbole und Schriftarten
+\usepackage{amsthm}    % erweiterte Theorem-Umgebungen
 
 % This sets page margins to .5 inch if using letter paper, and to 1cm
 % if using A4 paper. (This probably isn't strictly necessary.)
@@ -56,13 +61,36 @@
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{0pt plus 0.5ex}
 
+% ----------------------------------------------------
+% RouterEins(North/South)
+\newcommand{\REN}{134.2.0.1/16}
+\newcommand{\RES}{192.168.0.254/24}
+% RouterZwei(North/South)
+\newcommand{\RZN}{134.2.0.2/16}
+\newcommand{\RZS}{10.0.0.254/8}
+% RouterDrei(North/South)
+\newcommand{\RDN}{10.0.8.1/21}
+\newcommand{\RDS}{134.2.0.3/16}
+% HostsNorth(East/West)
+\newcommand{\HNE}{10.0.8.2/21}
+\newcommand{\HNW}{10.0.8.3/21}
+% HostSouth(North/South)
+\newcommand{\HSN}{192.168.0.1/24}
+\newcommand{\HSS}{192.168.0.2/24}
+% HostSouthEast(East/West)
+\newcommand{\HSEW}{10.0.0.1/8}
+\newcommand{\HSEE}{10.0.0.2/8}
+% Netze
+\newcommand{\DSL}{192.168.0.0/24}
+\newcommand{\FDDI}{134.2.0.0/16}
+\newcommand{\ETH}{10.0.0.0/8}
+\newcommand{\SETH}{10.0.8.0/21}
 
 % -----------------------------------------------------------------------
 
 \begin{document}
-
+\small
 \raggedright
-\footnotesize
 \begin{multicols}{3}
 
 
@@ -75,7 +103,7 @@
 \setlength{\columnsep}{2pt}
 
 \begin{center}
-     \Large{\textbf{CheatSheet}} \\
+     \Large{\textbf{GdI - CheatSheet}} \\
 \end{center}
 
 \section{Exercise 1}
@@ -90,6 +118,274 @@
 & \textcolor{red}{D}o & 2 & Data Link \\
 & \textcolor{red}{P}lease & 1 & Physical \\
 \end{tabular}
+\subsubsection{Zuordnung OSI}
+\begin{tabular}{l|l|l|l}
+Prot. & Spec & Medium & OSI \\
+\hline
+& IP & & 3 \\
+TCP & & & 4 \\
+& & Koaxkabel & 1 \\
+FTP & & & 7 \\
+UDP & & & 4 \\
+HTTP & & &  7 \\
+VoIP & & & 7 \\
+& & Sichtverb. & 1
+\end{tabular}
+\subsubsection{OSI-Ger\"ate}
+\begin{tabular}{l|l|l}
+Ger\"ate & Standard & OSI \\
+\hline
+& 802.11 & 2\\
+Hub & & 1 \\
+Switch & & 2 \\
+Router & & 3\\
+Gateway & & 3\\
+& 802.3 & 2 (?)\\
+& MobileIP & 3
+\end{tabular}
+
+\subsection{ARP}
+\begin{tikzpicture}[shorten >=0.7pt,node distance=1.6cm,auto]
+    \node[state]  (A)                       {A};
+    \node[state]  (B) [below right of=A]    {B};
+    \node[state]  (C) [right of=A]    {C};
+    \path[->]   (A)     edge  node {} (B)
+                (A)     edge  node {} (C)
+                (B)     edge  node {} (C)
+                ;
+\end{tikzpicture}
+A m\"ochte an B schicken, anschliessend C an A. Wie viele ARP-Pakete?
+\begin{enumerate}
+    \item A schickt ARP-Broadcast (B,C speichern ARP von A)
+    \item B schickt ARP an A
+\end{enumerate}
+C hat die Adresse von A schon durch den Broadcast, daher werden nur zwei verschickt.
+
+\subsection{IP-Adressen}
+\subsubsection{Pr\"afix}
+IP-Pr\"afix f\"ur 4 Subnetze mit 50 Hosts (A,B) und 200 Hosts (C,D):\\
+\begin{itemize}
+    \item[A,B] \textbf{/26} $2^26$ Bit f\"ur Netz, $2^6$ f\"ur Hosts (64)
+    \item[C,D] \textbf{/24} $2^24$ Bit f\"ur Netz, $2^8$ f\"ur Hosts (255)
+\end{itemize}
+\subsubsection{IPs}
+\begin{itemize}
+    \item[A] Router-Port: 192.168.1.1/26, Hosts: 192.168.1.{2..51}
+    \item[B] Router-Port: 192.168.2.1/26, Hosts: 192.168.2.{2..51}
+    \item[C] Router-Port: 192.168.3.1/24, Hosts: 192.168.3.{2..201}
+    \item[D] Router-Port: 192.168.4.1/24, Hosts: 192.168.4.{2..201}
+\end{itemize}
+
+\subsection{IP-Fragmentation}
+Hmm...
+
+\section{Exercise 2}
+\subsection{Forwarding Table}
+Die Hosts im DSL-Netzwerk m\"ussen \"uber den R1 geroutet werden,
+da sie nicht nicht geswitched sind oder auf einem Bus kommunizieren. \\
+\subsubsection{Trie}
+\begin{tabular}{|c|c|}
+    \hline
+    Netzwerk & Next Hop  \\
+    \hline\hline
+    \multicolumn{2}{|c|}{Router 1}\\
+    \hline
+        \HSN &  $H1$ \\
+        \HSS &  $H2$ \\
+        \SETH & $R3$ \\
+        \ETH & $R2$ \\
+   \hline
+\end{tabular}
+\begin{tikzpicture}[shorten >=1pt,node distance=2cm,auto]
+
+    \node[state]  (0)                                          {localhost};
+    \node[state]  (1) [below right of=0,label=right:$192.168$]      {};
+    \node[state]  (2) [below right of=1,label=below:$192.168.0.1$]  {};
+    \node[state]  (3) [below of=1,label=below:$192.168.0.2$]    {};
+    \node[state]  (4) [below left of=0,label=left:$134.2$]    {};
+    \node[state]  (5) [below left of=4,label=below:$134.2.0.2$]    {};
+    \node[state]  (6) [below of=4,label=below:$134.2.0.3$]    {};
+    \node[state]  (7) [above of=0,label=left:$10.0$]    {};
+    \node[state]  (8) [above right of=7,label=below:$10.0.0$]    {};
+    \node[state]  (9) [above left of=7,label=below:$10.0.8$]    {};
+    \node[state]  (10) [above right of=8,label=below:$10.0.0.1$]    {};
+    \node[state]  (11) [below right of=8,label=below:$10.0.0.2$]    {};
+    \node[state]  (12) [above left of=9,label=below:$10.0.8.2$]    {};
+    \node[state]  (13) [below left of=9,label=below:$10.0.8.3$]    {};
+    
+
+  \path[->] (0)     edge  node {} (1)
+            (1)     edge  node {} (2)
+            (1)     edge  node {} (3)
+            (0)     edge  node {} (4)
+            (4)     edge  node {} (5)
+            (4)     edge  node {} (6)
+            (0)     edge  node {} (7)
+            (7)     edge  node {} (8)
+            (7)     edge  node {} (9)
+            (8)     edge  node {} (10)
+            (8)     edge  node {} (11)
+            (9)     edge  node {} (12)
+            (9)     edge  node {} (13)
+            ;
+\end{tikzpicture}
+
+\subsection{Virtual Circuits}
+\subsubsection{Hosts}
+\begin{tabular}{|c|c|c|}
+    \hline
+    VCI & Inport & Outport  \\
+    \hline\hline
+    \multicolumn{3}{|c|}{Host \HSN}\\
+    \hline
+        L0 & - & \HSN \\
+        L1 & - & \HSN \\
+    \hline\hline
+    \multicolumn{3}{|c|}{Host \HSS}\\
+    \hline
+        L4 & \HSS & - \\
+    \hline\hline
+    \multicolumn{3}{|c|}{Host \HSEW}\\
+    \hline
+        L1 & \HSEW & - \\
+        L2 & \HSEW & - \\
+    \hline\hline
+    \multicolumn{3}{|c|}{Host \HSEE}\\
+    \hline
+        L2 & - & \HSEE \\
+    \hline
+\end{tabular}
+\subsection{Router}
+
+\begin{tabular}{|c|c|c|}
+    \hline
+    VCI & Inport & Outport  \\
+    \hline\hline
+    \multicolumn{3}{|c|}{R1}\\
+    \hline
+        L0 & \RZS & \REN \\
+        L1 & \RZS & \REN \\
+        L4 & \RZN & \RES \\
+    \hline\hline
+    \multicolumn{3}{|c|}{R2}\\
+    \hline
+        L1 & \RZN & \RZS \\
+        L2 & \RZN & \RZS \\
+        L3 & \RZS & \RZN \\
+    \hline\hline
+    \multicolumn{3}{|c|}{R3}\\
+    \hline
+        L0 & \RDS & \RDN \\
+        L1 & \RDS & \RDN \\
+        L4 & \RDN & \RDS \\
+    \hline
+    
+\end{tabular}
+
+\section{Exercise 3}
+\subsection{Routing im INet}
+\subsubsection{Interior Gateway Protocol}
+Interior Gateway Protocol (IGP) ist eine Gattungsbezeichnung, die man auf jedes
+Protokoll anwenden kann, das Informationen \"uber Wegewahl und Erreichbarkeit in
+einem autonomen System verbreitet. IGP ist ein IP-Protokoll zum Austausch von
+Routing-Informationen in autonomen Systemen.
+Obwohl es keinen einzigen Standard f\"ur das IGP-Protokoll gibt,
+ist das RIP-Protokoll das popul\"arste. Das IGP-Protokoll ist topologieunabh\"angig.
+Da unterschiedliche Topologien und Netzwerke vorhanden sind,
+gibt es mehrere Interior-Gateway-Protokolle.
+Gateways k\"onnen gleichzeitig verschiedene Routing-Protokolle benutzen,
+wenn sie die Verbindung zwischen 'autonomen Systemen' und einem \"ubergeordneten
+Backbone-Netzwerk sind. Hierf\"ur stehen neben dem erw\"ahnten RIP-Protokoll
+das Hello-Protokoll, das IGRP-Protokoll und das OSPF-Protokoll zur Verf\"ugung.\\
+
+\subsubsection{Exterior Gateway Protocol}
+Das Exterior Gateway Protocol (EGP) ist auf der Vermittlungsschicht des
+OSI-Referenzmodells angesiedelt und baut auf dem IP-Protokoll auf.
+Das EGP wird zur Kommunikation zwischen Routern benutzt und dient dem Verbund
+mehrerer komplexer Netze, die in sich eine abgeschlossene Welt bilden und nur
+gelegentlich mit anderen Netzen kommunizieren. Ein solches Netz wird in
+TCP/IP-Terminologie als autonomes System  bezeichnet. Es bildet mit anderen
+autonomen Systemen im Verbund ein 'Netz von Netzen'. In jedem autonomen System
+des Netzwerkverbundes wird nun mindestens ein Edge Router (ER) als
+Exterior-Gateway eingerichtet, der das autonome System mit den
+anderen autonomen Systemen verbindet.\\
+
+\subsubsection{Abgrenzung}
+EGP arbeitet mit \textbf{Distance Vector Routing} in dem es die Informationen
+seiner Nachbarn zur Erreichbarkeit anderer Netze sammelt und Informationen an seine
+eigenen Nachbarn weitergibt.\\
+Ferner ist es limitiert auf baumartig aufgebaute Netze.
+Hierdurch kann es ab einer Gewissen Netzkomplexit\"at schlichtweg nicht mehr skalieren
+und ist damit mittlerweile obsolet.
+IGP hingegen bezeichnet eine ganze Familie von Routingprotokollen, das
+popul\"arste ist das RIP-Protokoll.
+
+\subsubsection{Link State Routing}
+Beim LSR wird eine Konfigurations\"anderung an das komplette Netz geschickt. \\
+\"Andert sich ein Link, so wird diese Information direkt an alle
+beiteiligten Hosts geschickt. \\
+
+\subsubsection{Distance Vector Routing}
+Beim DVR senden sich die Router gegenseitig Informationen \"uber die von ihnen aus
+erreichbaren Hosts.\\
+Initial versendet jeder Host im Grunde nur, dass er sich selbst \"uber sich selbst erreichen kann.\\
+Darauf aufbauend, kann ein Nachbarhost nun die Information in seine Routingtabelle aufnehmen.\\
+Diese Information sendet er einen Hop weiter an den n\"achsten Host.\\
+So baut sich nach einigen Informationsaustauschen eine Tabelle mit der Erreichbarkeit des kompletten Netzwerk auf.
+
+\subsection{3.1.3 Protokollzuorndung}
+\begin{itemize}
+    \item \textbf{RIP} Ein Protokoll der IGP-Familie und nutzt DistanceVectorRouting
+    \item \textbf{OSPF} OSPF (Link-State-Routing) ist ein dynamisches Routing-Protokoll innerhalb eines autonomen Systems. \\
+        Es hat das Routing Information Protocol (RIP) als Standard-Interior Gateway Protocol (IGP) abgel\"ost
+    \item \textbf{BGP} Ein DistanceVektorRouting-Protokoll der IGP-Familie 
+\end{itemize}
+
+
+\subsection{Dijkstra}
+Die Grundidee des Algorithmus ist es, immer derjenigen Kante zu folgen,
+die den k\"urzesten Streckenabschnitt vom Startknoten aus verspricht. \\
+Andere Kanten werden erst dann verfolgt, wenn alle k\"urzeren Streckenabschnitte beachtet wurden.
+Dieses Vorgehen gew\"ahrleistet, dass bei Erreichen eines Knotens kein k\"urzerer Pfad zu ihm existieren kann. \\
+Eine einmal berechnete Distanz zwischen dem Startknoten und einem erreichten Knoten wird nicht mehr ge\"andert.
+Dieses Vorgehen wird fortgesetzt, bis die Distanz des Zielknotens berechnet wurde (single-pair shortest path)
+oder die Distanzen aller Knoten zum Startknoten bekannt sind (single-source shortest path).
+\tiny
+\begin{tabular}{l|l|l}
+\textbf{Step}   & \textbf{confirmed}    & \textbf{tentative} \\
+1   & (I,0,-)           & (D,5,D);(G,1,G);(E,5,E);(H,3,H) \\
+2   & (I,0,-);(G,1,G)   & (D,3,G);(E,5,E);(H,3,H) \\
+3   & (I,0,-);(G,1,G);(D,3,G)   & (E,5,E);(H,3,H);(B,7.5,D) \\
+4   & (I,0,-);(G,1,G);(D,3,G);(H,3,H)   & (E,5,E);(B,7.5,D);(F,11,H) \\
+\end{tabular}
+
+\subsection{Bellman-Ford}
+\small
+Anders als beim Algorithmus von Dijkstra, dem bekanntesten Verfahren zur Suche nach k\"urzesten Wegen in Graphen,
+k\"onnen die Gewichte der Kanten auch negativ sein, allerdings d\"urfen keine Kreise negativen Gewichtes vorkommen. \\
+Falls es negative Kreise gibt, findet der Algorithmus nicht zu jedem Knoten den k\"urzesten Weg.
+Es ist jedoch m\"oglich, mit dem Algorithmus das Vorhandensein von Kreisen negativen Gewichtes zu erkennen.
+
+\section{Exercise 4}
+\subsection{OSPF}
+\subsection{Effect of congestion}
+
+\section{Exercise 5}
+\subsection{BGP-advertisements}
+\subsection{BGP - eBGP/iBGP}
+
+\section{Exercise 6}
+\subsection{Forwarding and routing tables}
+\subsection{Stop'N'Wait,GoBackN,Selective Repeat}
+\subsection{Selective Repeat}
+
+\section{Exercise 7}
+\subsection{TCP time to receive data}
+\subsection{TCP loss rate}
+
+\section{Exercise 8}
+\subsection{DNS-Verkehrsmodelle}
+\subsection{NSLookup}
 
 \end{multicols}
 \end{document}
