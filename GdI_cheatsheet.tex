@@ -372,12 +372,123 @@ Es ist jedoch m\"oglich, mit dem Algorithmus das Vorhandensein von Kreisen negat
 
 \section{Exercise 5}
 \subsection{BGP-advertisements}
+\subsubsection{advertising}
+UPDATE-Nachrichten (Folie 184)
+\begin{itemize}
+    \item $AS1 \to AS2: 134/8:AS1;R1$
+    \item $AS2 \to AS3: 134/8:AS2,AS1;R2$
+    \item $AS2 \to AS5: 134/8:AS2,AS1;R2$
+    \item $AS3 \to AS4: 134/8:AS3,AS2,AS1;R3$
+    \item $AS3 \to AS5: 134/8:AS3,AS2,AS1;R3$
+    \item $AS4 \to AS5: 134/8:AS4,AS3,AS2,AS1;R4$
+    \item $AS5 \to AS6: 134/8:[[AS5],AS4],AS3,AS2,AS1;R5$ 
+    \item $AS5 \to AS4: 138/8:[AS3],AS2,AS1;R5$ 
+    \item $AS5 \to AS3: 138/8:AS2,AS1;R5$
+    \item $AS4 \to AS3: 138/8:AS4,AS5,AS2,AS1;R4$
+\end{itemize}
+\subsubsection{Wie viele Routen kennt R5, welche announced er zu R6?}
+\begin{itemize}
+    \item Der innere Knoten R5 kennt die Routen \"uber A2,3,4
+    \item Wie in 5.1 anounced er einen Weg der f\"ur ihn optimal erscheint. Evtl. nach Kostenaspekt, oder Bandbreite, Stabilit\"at, etc.
+\end{itemize}
+\subsubsection{Route bricht weg}
+WITHDRAW-Nachrichten (Folie 186)
+\begin{itemize}
+    \item $AS2 \to AS3: 134/8$
+    \item $AS2 \to AS5: 134/8$
+    \item $AS3 \to AS4: 134/8$
+    \item $AS3 \to AS5: 134/8$
+    \item $AS4 \to AS5: 134/8$
+    \item $AS5 \to AS6: 134/8$
+\end{itemize}
+\subsubsection{Links wieder da, anderer Links brechen weg}
+\begin{itemize}
+    \item Da es in dem kostenpflichten Links nur AS2 und AS5 betrifft, werden dort keine WITHDRAWS verschickt.\\
+    Sollte AS5 zu AS6 einen Pfad mit dieser Route anounced haben, dann wird er ein UDATE mit einer alternativen Route schicken.
+    \item R3 w\"urde den prefix bei R5 und R4 WITHDRAWen. R3 rekonfiguriert seine Route aus den schon bekommenen Inforamtionen und schickt nun \"uber R5.
+\end{itemize}
+
 \subsection{BGP - eBGP/iBGP}
+Mehrere AS\_X-Teilnetze, die Frage ist, wie welcher Router in den Netzen die Routen zu den anderen lernt.\\
+Das Ding ist zu schauen, wie viele Hops gebraucht werden, bis die Information von einem zum anderen hoppelt.\\
+Wer zuerst kommt, der malt dann auch zuerst.
+\subsubsection{Informationswege Teilrouter werden abgefragt}
+\begin{enumerate}
+    \item Erst breitet sich die Information in AS4 \"uber RIP aus.
+    \item 4c berichtet \"uber eBGP an 3c
+    \item 3c nutzt innerhalb AS3 OSPF (3a)
+    \item AS3 teilt AS1 (dem Router 1c) \"uber eBGP das Prefix mit    
+\end{enumerate}
+\subsubsection{What interface of 1d will be configured to route the prefix x?}
+IF1, da der Router 1a die Information eher hat als 1b.
+\subsubsection{Welches Interface von RouterX?}
+Die Hopanzahl zu 1b von 4a ist 3, zu 1a ist sie 6.\\
+Somit ist davon auszugehen, dass 1b die Information eher an 1d schicken wird und somit IF2 konfiguriert wird.
+\subsubsection{Interface?}
+Da die Netze alle shared-cost verbunden sind, wird nach einer Heuristik entschieden.\\
+Am wahrscheinlichsten w\"are die Entscheidung an hand der Anzahl der Hops zu treffen, dann w\"are IF1 die beste Wahl.\\
+Evtl. k\"onnte der andere Pfad jedoch mit einer besseren Verbindung werben, dann ist evtl. IF2 besser.
+Ohne Zusatzinformationen w\"urde ich jedoch IF1 favorisieren.
 
 \section{Exercise 6}
 \subsection{Forwarding and routing tables}
+
 \subsection{Stop'N'Wait,GoBackN,Selective Repeat}
+\begin{itemize}
+    \item 10 Gbit/s Netz
+    \item packet size 4000byte
+    \item rtt 200ms
+\end{itemize}
+\subsubsection{transmit-Time des Pakets}
+Es gilt $d_{saw} = \frac{L}{R} + t_{rtt}$, wobei $L$ die Paketl\"ange ist,
+$R$ die \"Ubertragungsgeschwindigkeit und $t_{rtt}$ die
+\textit{round-travel-time}. Im vorliegen Fall wird die
+\"Ubertragungsdauer der ACK-Pakete vernachl\"assig, somit gilt
+$d_{saw} = \frac{4000*8 bit}{10^{10} bps} + 20ms = 20,0032ms$
+\subsubsection{utilization}
+Es gilt $U_{saw} = \frac{L/R}{t_{rtt} + L/R}$ \\
+$\Rightarrow U_{saw} = \frac{0,0032ms}{20,0032ms} = 1,59974 * 10^{-4}$
+
+\subsubsection{Effektiver Druchsatz}
+Effektiv werden f\"ur die \"Ubertragung von 4000 byte 20,0032ms ben\"otigt. \\
+Also: $R_{saw} = \frac{4000*8 bit}{20,0032ms} = 1599b/ms = 1.599.000b/s$
+
+\subsubsection{Fenstergr\"osse f\"ur 90 $U_{saw}$}
+$\dfrac{N * L/R}{rtt + L/R} = 0.9$
+$N = 5626$
+
+\subsubsection{Warum ist GBN uneffizient bei Paketverlusten?}
+Bei wiederholten Paketverlusten kommt es bei GBN zur mehrfachen \"Ubertragen von Paketen.
+Angenommen, Paket $x$ kommt \"uberhaupt nicht an. Der Sender schickt weiterhin Pakete im Fenster n,
+bis der Timeout f\"ur die ACK-R\"uckmeldung f\"ur Paket 3 beim Sender eintritt.
+Nun wird Paket 3 und \textbf{alle} anderen Pakete im Fenster nochmal geschickt.
+
+\subsubsection{Wie kann GBN diesbez\"uglich verbessert werden?}
+Dieser Nachteil kann z.B. durch einen Buffer beim Empf\"anger behoben werden.
+Wird ein fehlerhaftes Paket empfangen, werden trotzdem weiterhin Pakete vom Sender angenommen.
+Bei einem ACK-Timeout schickt der Sender nun nur das \textbf{\"alteste} noch nicht best\"atigte Paket
+nochmal. Der Empf\"anger f\"ugt dieses in seinen Buffer ein und kann die Pakete dann komplett weiterleiten.
+
+
 \subsection{Selective Repeat}
+\subsubsection{Fenster $[k;k+N-1]$ mit N in-flights,welche SequenzNR?}
+Paket Nummer $k-1$ wurde auf Empf\"angerseite empfangen und best\"atigt.
+Somit wartet der Empf\"anger auf die Pakete ab der Nummer $k$.
+
+\subsubsection{gehen alle in-flights verloren (data/ack), wieviele SequenzNR werden zur Zuordnung ben\"otigt?}
+Die Anzahl der Sequenznummern sollte so gross sein, wie die Fenstergr\"osse. \\
+Durch den Buffer beseht hier die Gefahr, dass ein Paket verloren geht und die Sequenznummer wiederverwendet wird, bevor der Timeout zuschl\"agt.\\
+So w\"urde der Empf\"anger die Sequenznummer des zweiten Pakets best\"atigen und der Sender w\"urde denken es handelt sich um die Best\"atigung des ersten Paketes.
+
+\subsubsection{Wieviele SeqNr brauch der GBN zum Erfolg?}
+Da das Problem aus 6.3.2 nicht auftreten kann, muss der Sequenznummer-Menge nur so gross sein, wie Pakete innerhalb des Timeouts geschickt werden k\"onnen.
+$Timeout / RTT $
+
+\subsubsection{Wenn das Netz die Reinfolge verdreht, \"andert das was?}
+\paragraph{SR} Bei SR haben wir schon die maximale Sequenznummer-Menge definiert, hier \"andert sich nichts. \\
+\paragraph{GBN} Durch die extrem vergr\"osserten Timeouts kann nicht mehr festgestellt werden, welches Paket gerade angekommen ist, sollten die Nummer weiderverwendet werden.\\
+Daher gilt nun auch hier als Sequenznummer-Menge die Fenstergr\"osse.
+
 
 \section{Exercise 7}
 \subsection{TCP time to receive data}
