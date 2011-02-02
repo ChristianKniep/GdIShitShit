@@ -12,6 +12,7 @@
 \usepackage{multirow}
 \usepackage{tikz}
 \usetikzlibrary{arrows,automata}
+\usepackage{algorithmic}
 \usepackage{alltt}
 \usepackage{amsmath}   % allgemeine Mathe-Erweiterungen
 \usepackage{amssymb}   % Symbole und Schriftarten
@@ -119,15 +120,15 @@
 
 \section{Exercise 1}
 \subsection{ISO/OSI - Schichtenmodell}
-\begin{tabular}{l|l|l|l}
-\multirow{3}{*}{Anw. } & \textcolor{red}{A}way! & 7 & Application \\
-& \textcolor{red}{P}izza & 6 & Presentation \\
-& \textcolor{red}{S}alami & 5 & Session \\
+\begin{tabular}{l|l|l|l|l}
+\multirow{3}{*}{Anw. } & \textcolor{red}{A}way! & 7 & Application & \textcolor{red}{A}lle\\
+& \textcolor{red}{P}izza & 6 & Presentation & \textcolor{red}{P}riester \\
+& \textcolor{red}{S}alami & 5 & Session  & \textcolor{red}{S}aufen\\
 \hline
-\multirow{4}{*}{Trans.} & \textcolor{red}{T}hrow & 4 & Transport \\
-& \textcolor{red}{N}ot & 3 & Network \\
-& \textcolor{red}{D}o & 2 & Data Link \\
-& \textcolor{red}{P}lease & 1 & Physical \\
+\multirow{4}{*}{Trans.} & \textcolor{red}{T}hrow & 4 & Transport  & \textcolor{red}{T}equilla\\
+& \textcolor{red}{N}ot & 3 & Network  & \textcolor{red}{N}ach \\
+& \textcolor{red}{D}o & 2 & Data Link  & \textcolor{red}{D}er\\
+& \textcolor{red}{P}lease & 1 & Physical  & \textcolor{red}{P}redigt \\
 \end{tabular}
 \subsubsection{Zuordnung OSI}
 \begin{tabular}{l|l|l|l}
@@ -146,13 +147,13 @@ VoIP & & & 7 \\
 \begin{tabular}{l|l|l}
 Ger\"ate & Standard & OSI \\
 \hline
-& 802.11 & 2\\
+& 802.11 & 2/3\\
 Hub & & 1 \\
 Switch & & 2 \\
 Router & & 3\\
-Gateway & & 3\\
-& 802.3 & 2 (?)\\
-& MobileIP & 3
+Gateway & & 7\\
+& 802.3 & 1/2\\
+& MobileIP & 4
 \end{tabular}
 
 \subsection{ARP}
@@ -188,7 +189,14 @@ IP-Pr\"afix f\"ur 4 Subnetze mit 50 Hosts (A,B) und 200 Hosts (C,D):\\
 \end{itemize}
 
 \subsection{IP-Fragmentation}
-Hmm...
+Bei der Fragmentation wird ein Paket je nach MTU der n"achsten Verbindung zerlegt.\\
+Die geschieht stets in 8Byte Bl"ocken, wird es zerlegt, so wird das More-Flag gesetzt.\\
+Ist die MTU also 1500 und sollen 2000 Byte gesendet werden so werden im ersten Block so viele 8ter Bytebl"ocke versendet wie reinpassen und das Offset dementsprechend angepasst.
+\begin{tabular}{l|l|l|l|l}
+FragNr & Payload (8ter Split) & FragLength & FragOffset & More-Bit \\
+1 & 1480 (185*8) & 1500 & 0 & 1\\
+2 & 520 (Rest)  & 1500 & 185 & 0
+\end{tabular}
 
 \section{Exercise 2}
 \subsection{Forwarding Table}
@@ -296,30 +304,25 @@ da sie nicht nicht geswitched sind oder auf einem Bus kommunizieren. \\
 \section{Exercise 3}
 \subsection{Routing im INet}
 \subsubsection{Interior Gateway Protocol}
-Interior Gateway Protocol (IGP) ist eine Gattungsbezeichnung, die man auf jedes
-Protokoll anwenden kann, das Informationen \"uber Wegewahl und Erreichbarkeit in
-einem autonomen System verbreitet. IGP ist ein IP-Protokoll zum Austausch von
-Routing-Informationen in autonomen Systemen.
-Obwohl es keinen einzigen Standard f\"ur das IGP-Protokoll gibt,
-ist das RIP-Protokoll das popul\"arste. Das IGP-Protokoll ist topologieunabh\"angig.
-Da unterschiedliche Topologien und Netzwerke vorhanden sind,
-gibt es mehrere Interior-Gateway-Protokolle.
-Gateways k\"onnen gleichzeitig verschiedene Routing-Protokolle benutzen,
-wenn sie die Verbindung zwischen 'autonomen Systemen' und einem \"ubergeordneten
-Backbone-Netzwerk sind. Hierf\"ur stehen neben dem erw\"ahnten RIP-Protokoll
-das Hello-Protokoll, das IGRP-Protokoll und das OSPF-Protokoll zur Verf\"ugung.\\
+\begin{itemize}
+    \item Gattungsbezeichnung
+    \item topologieunabh"angig
+    \item Protokolle f"ur unterschiedliche Topos (popul"ar$\Rightarrow$weniger) \\
+        RIP,OSPF,BGP,IGRP,Hello
+    \item Multiple Protokolle pro AS m"oglich
+\end{itemize}
 
 \subsubsection{Exterior Gateway Protocol}
-Das Exterior Gateway Protocol (EGP) ist auf der Vermittlungsschicht des
-OSI-Referenzmodells angesiedelt und baut auf dem IP-Protokoll auf.
+\begin{itemize}
+    \item Baut auf IP - Schicht 3
+    \item Limitiert auf B"aume
+    \item Skaliert nicht gut, daher obsolet
+    \item Netzen von Netzen
+    \item Jedes Netz min. ein Edge Router
+\end{itemize}
 Das EGP wird zur Kommunikation zwischen Routern benutzt und dient dem Verbund
 mehrerer komplexer Netze, die in sich eine abgeschlossene Welt bilden und nur
-gelegentlich mit anderen Netzen kommunizieren. Ein solches Netz wird in
-TCP/IP-Terminologie als autonomes System  bezeichnet. Es bildet mit anderen
-autonomen Systemen im Verbund ein 'Netz von Netzen'. In jedem autonomen System
-des Netzwerkverbundes wird nun mindestens ein Edge Router (ER) als
-Exterior-Gateway eingerichtet, der das autonome System mit den
-anderen autonomen Systemen verbindet.\\
+gelegentlich mit anderen Netzen kommunizieren. 
 
 \subsubsection{Abgrenzung}
 EGP arbeitet mit \textbf{Distance Vector Routing} in dem es die Informationen
@@ -369,6 +372,29 @@ oder die Distanzen aller Knoten zum Startknoten bekannt sind (single-source shor
 3   & (I,0,-);(G,1,G);(D,3,G)   & (E,5,E);(H,3,H);(B,7.5,D) \\
 4   & (I,0,-);(G,1,G);(D,3,G);(H,3,H)   & (E,5,E);(B,7.5,D);(F,11,H) \\
 \end{tabular}
+\begin{algorithmic}
+	\STATE $S \gets \lbrace s \rbrace$
+	\STATE $d(s) \gets 0$
+  	\STATE $S' \gets  out(S)$
+ 	\FORALL { $u \in S'$ }
+ 		\STATE $d'(u) = c(s,u)$
+ 	\ENDFOR
+ 	\FORALL {$u \in V \setminus  \lbrace S,S' \rbrace$}
+ 		\STATE $d'(u) \gets \infty$
+  	\ENDFOR 
+  	\WHILE {$S \neq V$}
+  		\STATE w"ahle $w \in S'$ mit kleinstem $d'$
+  		\STATE $d(w) \gets d'(w)$
+  		\STATE $S \gets S \cup \lbrace w \rbrace$
+  		\STATE $S' \gets S' \setminus \lbrace w \rbrace$
+  		\FORALL {$n \in out(w)$}
+  			\IF { $n \notin S$ }
+  				\STATE $S' \gets S' \cup \lbrace n \rbrace$
+  				\STATE $d'(n) \gets \min \lbrace d'(n), d(w) + c(w,n) \rbrace$
+  			\ENDIF
+  		\ENDFOR
+  	\ENDWHILE 
+\end{algorithmic}
 
 \subsection{Bellman-Ford}
 \small
@@ -376,6 +402,24 @@ Anders als beim Algorithmus von Dijkstra, dem bekanntesten Verfahren zur Suche n
 k\"onnen die Gewichte der Kanten auch negativ sein, allerdings d\"urfen keine Kreise negativen Gewichtes vorkommen. \\
 Falls es negative Kreise gibt, findet der Algorithmus nicht zu jedem Knoten den k\"urzesten Weg.
 Es ist jedoch m\"oglich, mit dem Algorithmus das Vorhandensein von Kreisen negativen Gewichtes zu erkennen.
+\begin{verbatim}
+01  fuer jedes v aus V                   
+02      Distanz(v) := unendlich, Vorg"anger(v) := kein
+03  Distanz(s) := 0
+
+04  wiederhole n - 1 mal               
+05      fuer jedes (u,v) aus E
+06          wenn Distanz(u) + Gewicht(u,v) < Distanz(v)
+07          dann
+08              Distanz(v) := Distanz(u) + Gewicht(u,v)
+09              Vorgaenger(v) := u
+
+10  fuer jedes (u,v) aus E                
+11      wenn Distanz(u) + Gewicht(u,v) < Distanz(v) dann
+12          STOPP mit Ausgabe 'Kreis negativen Gewichtes.'
+
+13  Ausgabe Distanz
+\end{verbatim}
 
 \newpage
 \section{Exercise 4}
